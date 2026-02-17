@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Structural System Selector – Analytical Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Concept Stage Structural System Decision Assistant for Architecture Students">
+    <meta name="author" content="Your Name">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+    <h1>Structural System Selector</h1>
+    <p class="subtitle">Concept Stage Analytical Decision Assistant</p>
+</header>
+
+<div class="card">
+
+    <h3>Project Parameters</h3>
+
+    <label>Typical Span</label>
+    <select id="span">
+        <option value="1">Small (3–6m)</option>
+        <option value="2">Medium (6–12m)</option>
+        <option value="3">Large (12–25m)</option>
+        <option value="4">Very Large (25m+)</option>
+    </select>
+
+    <label>Building Height</label>
+    <select id="height">
+        <option value="1">Low Rise (1–3 floors)</option>
+        <option value="2">Mid Rise (4–10 floors)</option>
+        <option value="3">High Rise (10+ floors)</option>
+    </select>
+
+    <label>Material Preference</label>
+    <select id="material">
+        <option value="concrete">Concrete</option>
+        <option value="steel">Steel</option>
+        <option value="timber">Timber</option>
+        <option value="any">No Preference</option>
+    </select>
+
+    <label>Architectural Expression</label>
+    <select id="expression">
+        <option value="1">Neutral</option>
+        <option value="2">Expressive</option>
+    </select>
+
+    <h3>Decision Weights</h3>
+    <p class="note">Adjust importance (1 = low importance, 5 = very important)</p>
+
+    <label>Span Importance</label>
+    <input type="range" min="1" max="5" value="3" id="w_span">
+
+    <label>Height Importance</label>
+    <input type="range" min="1" max="5" value="3" id="w_height">
+
+    <label>Material Importance</label>
+    <input type="range" min="1" max="5" value="3" id="w_material">
+
+    <label>Expression Importance</label>
+    <input type="range" min="1" max="5" value="3" id="w_expression">
+
+    <button onclick="analyzeSystems()">Analyze Structural Systems</button>
+
+</div>
+
+<div id="results"></div>
+
+<footer>
+    <div class="footer-content">
+        <p>© 2026 Balaji Venkatachary</p>
+        <p>This tool provides conceptual guidance only. It does not replace structural engineering design or professional consultation.</p>
+        <p>Developed for academic use in undergraduate architectural education.</p>
+
+        <h4>References</h4>
+        <ul>
+            <li>Allen, E., & Iano, J. (2019). Fundamentals of Building Construction.</li>
+            <li>Ching, F. D. K. (2014). Building Structures Illustrated.</li>
+            <li>Macdonald, A. (2001). Structure and Architecture.</li>
+            <li>Engel, H. (2007). Structure Systems.</li>
+        </ul>
+    </div>
+</footer>
+
+</div>
+
+<script>
+
+const systems = [
+    {
+        name: "Load Bearing Wall",
+        span: 1,
+        height: 1,
+        material: "concrete",
+        expression: 1
+    },
+    {
+        name: "Reinforced Concrete Frame",
+        span: 2,
+        height: 2,
+        material: "concrete",
+        expression: 1
+    },
+    {
+        name: "Steel Frame",
+        span: 3,
+        height: 3,
+        material: "steel",
+        expression: 1
+    },
+    {
+        name: "Truss System",
+        span: 3,
+        height: 2,
+        material: "steel",
+        expression: 2
+    },
+    {
+        name: "Space Frame",
+        span: 4,
+        height: 2,
+        material: "steel",
+        expression: 2
+    },
+    {
+        name: "Shear Wall System",
+        span: 2,
+        height: 3,
+        material: "concrete",
+        expression: 1
+    }
+];
+
+function analyzeSystems() {
+
+    const span = parseInt(document.getElementById("span").value);
+    const height = parseInt(document.getElementById("height").value);
+    const material = document.getElementById("material").value;
+    const expression = parseInt(document.getElementById("expression").value);
+
+    const w_span = parseInt(document.getElementById("w_span").value);
+    const w_height = parseInt(document.getElementById("w_height").value);
+    const w_material = parseInt(document.getElementById("w_material").value);
+    const w_expression = parseInt(document.getElementById("w_expression").value);
+
+    let results = [];
+
+    systems.forEach(system => {
+
+        let score = 0;
+
+        score += (5 - Math.abs(system.span - span)) * w_span;
+        score += (5 - Math.abs(system.height - height)) * w_height;
+
+        if (material === "any") {
+            score += 5 * w_material;
+        } else if (system.material === material) {
+            score += 5 * w_material;
+        }
+
+        score += (5 - Math.abs(system.expression - expression)) * w_expression;
+
+        results.push({
+            name: system.name,
+            score: score
+        });
+
+    });
+
+    results.sort((a, b) => b.score - a.score);
+
+    displayResults(results);
+}
+
+function displayResults(results) {
+
+    const container = document.getElementById("results");
+    container.innerHTML = "";
+
+    let tableHTML = `
+        <div class="card">
+        <h3>Ranked Structural Systems</h3>
+        <table>
+        <tr>
+            <th>Rank</th>
+            <th>System</th>
+            <th>Score</th>
+        </tr>
+    `;
+
+    results.forEach((r, index) => {
+        tableHTML += `
+            <tr>
+                <td>${index + 1}</td>
+                <td>${r.name}</td>
+                <td>${r.score}</td>
+            </tr>
+        `;
+    });
+
+    tableHTML += "</table></div>";
+
+    container.innerHTML = tableHTML;
+}
+
+</script>
+
+</body>
+</html>
+
